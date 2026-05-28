@@ -1,5 +1,15 @@
-# Job uses WORKSPACE paths relative to bundle root (../bronze, etc.).
-# Notebooks read catalog/storage from bundle variables via base_parameters.
+# Validated in dev UI (azure-e2e-project-anirban). Differences from UI export for DAB:
+# - notebook_path: bundle-relative (../bronze/*.ipynb), not /Workspace/Users/.../Git folder paths
+# - base_parameters: ${var.*} from databricks.yml (dev target vs prod target)
+# - NO git_source (see below): bundle deploy copies repo files into the workspace; job runs those copies
+#
+# Why git_source is omitted (your UI export had git_branch: dev):
+# - With git_source, the job runs notebooks from the linked Git repo at runtime, not from bundle sync.
+# - Prod would still pull branch "dev" from GitHub unless you change it per environment.
+# - That bypasses "merge to main → deploy prod" and can disagree with ${var.catalog_name} for prod.
+# - DAB standard: bundle deploy -t dev|prod syncs code; tasks use source: WORKSPACE + relative paths.
+#
+# Dev-first flow: push to dev → deploy-dev workflow → test job → PR dev→main → deploy-prod workflow.
 resources:
   jobs:
     azure_e2e_project_anirban:
@@ -11,9 +21,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: diagnosis_silver_task
           depends_on:
@@ -23,9 +33,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: hospital_raw_ingestion
           notebook_task:
@@ -33,9 +43,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: hospital_silver_task
           depends_on:
@@ -45,9 +55,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: patients_ingestion
           notebook_task:
@@ -55,9 +65,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: patient_silver_task
           depends_on:
@@ -67,9 +77,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: visits_ingestion
           notebook_task:
@@ -77,9 +87,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: fact_visit_ingestion
           depends_on:
@@ -92,9 +102,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
         - task_key: resubmission_analysis
           depends_on:
@@ -104,9 +114,9 @@ resources:
             source: WORKSPACE
             base_parameters:
               catalog_name: ${var.catalog_name}
-              storage_account: ${var.storage_account}
               container_name: ${var.container_name}
               raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
           environment_key: Default
       queue:
         enabled: true

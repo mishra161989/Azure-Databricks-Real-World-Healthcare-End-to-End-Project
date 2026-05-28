@@ -1,12 +1,12 @@
-# DAB CI deploy is OFF until the Lakeflow job is built and tested in the Databricks UI.
-# To re-enable auto-deploy on push to dev, restore the push trigger under `on:`.
+# Dev: deploy bundle on push to dev. Test job in dev workspace before PR to main.
+# Requires GitHub Environment "dev" with DATABRICKS_HOST + DATABRICKS_TOKEN (dev workspace PAT).
 name: Deploy to Dev
 
 on:
+  push:
+    branches:
+      - dev
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - dev
 
 jobs:
   deploy:

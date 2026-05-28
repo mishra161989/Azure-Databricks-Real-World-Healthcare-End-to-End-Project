@@ -1,12 +1,12 @@
-# DAB CI deploy is OFF until dev job is codified in resources/job.yml and tested.
-# To re-enable auto-deploy on push to main, restore the push trigger under `on:`.
+# Prod: auto-deploy on merge/push to main (PR dev → main only).
+# Requires GitHub Environment "prod" with DATABRICKS_HOST + DATABRICKS_TOKEN (prod workspace PAT).
 name: Deploy to Prod
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
 
 jobs:
   deploy:

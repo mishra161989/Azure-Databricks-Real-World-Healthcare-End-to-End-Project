@@ -28,6 +28,7 @@ targets:
     variables:
       catalog_name: haredecodes
       storage_account: haredecodesnew
+      container_name: data
       raw_path_prefix: staging
 
   prod:
@@ -38,4 +39,5 @@ targets:
     variables:
       catalog_name: haredecodes_prod
       storage_account: haredecodesnewprod
+      container_name: data
       raw_path_prefix: staging
