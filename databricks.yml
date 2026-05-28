@@ -25,9 +25,6 @@ targets:
     mode: development
     workspace:
       host: https://adb-7405614871562851.11.azuredatabricks.net
-    permissions:
-      - user_name: mishraharekrushna16@gmail.com
-        level: CAN_MANAGE
     variables:
       catalog_name: haredecodes
       storage_account: haredecodesnew
