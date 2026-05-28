@@ -1,18 +1,45 @@
 bundle:
   name: healthcare-end-to-end-project
 
+sync:
+  exclude:
+    - docs/**
+    - DEPLOYMENT.md
+
 include:
   - resources/*.yml
+
+variables:
+  catalog_name:
+    description: Unity Catalog catalog name
+  storage_account:
+    description: ADLS storage account name (no protocol)
+  container_name:
+    default: data
+  raw_path_prefix:
+    default: staging
+    description: Raw CSV folder under container (staging or landing)
 
 targets:
   dev:
     mode: development
     workspace:
-      host: https://adb-7405607317963710.10.azuredatabricks.net
-    
+      host: https://adb-7405614871562851.11.azuredatabricks.net
+    variables:
+      catalog_name: haredecodes
+      storage_account: haredecodesnew
+      container_name: data
+      raw_path_prefix: staging
+
   prod:
     mode: production
     workspace:
-      host: https://adb-7405607317963710.10.azuredatabricks.net
+      host: https://adb-7405616194048266.6.azuredatabricks.net
       root_path: /Workspace/.bundle/${bundle.name}/${bundle.target}
-
+    run_as:
+      user_name: mishraharekrushna16@gmail.com
+    variables:
+      catalog_name: haredecodes_prod
+      storage_account: haredecodesnewprod
+      container_name: data
+      raw_path_prefix: staging

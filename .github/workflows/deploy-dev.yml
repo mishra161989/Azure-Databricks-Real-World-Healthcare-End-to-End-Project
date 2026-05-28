@@ -1,25 +1,33 @@
+# Dev: deploy bundle on push to dev. Test job in dev workspace before PR to main.
+# Requires GitHub Environment "dev" with DATABRICKS_HOST + DATABRICKS_TOKEN (dev workspace PAT).
 name: Deploy to Dev
 
 on:
   push:
     branches:
       - dev
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+    environment: dev
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Databricks CLI
         uses: databricks/setup-cli@main
-      
+
+      - name: Validate bundle
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: databricks bundle validate -t dev
+
       - name: Deploy to Dev
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: |
-          databricks bundle deploy -t dev
-
+        run: databricks bundle deploy -t dev

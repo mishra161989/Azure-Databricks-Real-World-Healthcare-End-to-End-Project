@@ -1,67 +1,127 @@
+# Validated in dev UI (azure-e2e-project-anirban). Differences from UI export for DAB:
+# - notebook_path: bundle-relative (../bronze/*.ipynb), not /Workspace/Users/.../Git folder paths
+# - base_parameters: ${var.*} from databricks.yml (dev target vs prod target)
+# - NO git_source (see below): bundle deploy copies repo files into the workspace; job runs those copies
+#
+# Why git_source is omitted (your UI export had git_branch: dev):
+# - With git_source, the job runs notebooks from the linked Git repo at runtime, not from bundle sync.
+# - Prod would still pull branch "dev" from GitHub unless you change it per environment.
+# - That bypasses "merge to main → deploy prod" and can disagree with ${var.catalog_name} for prod.
+# - DAB standard: bundle deploy -t dev|prod syncs code; tasks use source: WORKSPACE + relative paths.
+#
+# Dev-first flow: push to dev → deploy-dev workflow → test job → PR dev→main → deploy-prod workflow.
 resources:
   jobs:
-    end_to_end_healthcare_project_job:
-      name: end-to-end-healthcare-project-job-updated
+    azure_e2e_project_anirban:
+      name: azure-e2e-project-anirban
       tasks:
         - task_key: diagnosis_raw_ingestion_task
           notebook_task:
             notebook_path: ../bronze/diagnosis_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: dim_diagnosis_ingestion
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
+        - task_key: diagnosis_silver_task
           depends_on:
             - task_key: diagnosis_raw_ingestion_task
           notebook_task:
             notebook_path: ../silver/dim_diagnosis_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: hospitals_raw_ingestion_task
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
+        - task_key: hospital_raw_ingestion
           notebook_task:
             notebook_path: ../bronze/hospitals_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: dim_hospital_ingestion
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
+        - task_key: hospital_silver_task
           depends_on:
-            - task_key: hospitals_raw_ingestion_task
+            - task_key: hospital_raw_ingestion
           notebook_task:
             notebook_path: ../silver/dim_hospital_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: patients_raw_ingestion_task
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
+        - task_key: patients_ingestion
           notebook_task:
             notebook_path: ../bronze/patients_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: dim_patient_ingestion
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
+        - task_key: patient_silver_task
           depends_on:
-            - task_key: patients_raw_ingestion_task
+            - task_key: patients_ingestion
           notebook_task:
             notebook_path: ../silver/dim_patient_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: visits_raw_ingestion_task
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
+        - task_key: visits_ingestion
           notebook_task:
             notebook_path: ../bronze/visits_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
         - task_key: fact_visit_ingestion
           depends_on:
-            - task_key: dim_patient_ingestion
-            - task_key: dim_hospital_ingestion
-            - task_key: dim_diagnosis_ingestion
-            - task_key: visits_raw_ingestion_task
+            - task_key: diagnosis_silver_task
+            - task_key: hospital_silver_task
+            - task_key: patient_silver_task
+            - task_key: visits_ingestion
           notebook_task:
             notebook_path: ../silver/fact_visit_ingestion.ipynb
             source: WORKSPACE
-        
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
         - task_key: resubmission_analysis
           depends_on:
             - task_key: fact_visit_ingestion
           notebook_task:
             notebook_path: ../gold/resubmission_analysis.ipynb
             source: WORKSPACE
-      
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
+              storage_account: ${var.storage_account}
+          environment_key: Default
       queue:
         enabled: true
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "5"
       performance_target: PERFORMANCE_OPTIMIZED
-
