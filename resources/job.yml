@@ -1,67 +1,72 @@
+# Job uses WORKSPACE paths relative to bundle root (../bronze, etc.).
+# Notebooks are deployed by `databricks bundle deploy` — no job-level git_source (prod-safe).
 resources:
   jobs:
-    end_to_end_healthcare_project_job:
-      name: end-to-end-healthcare-project-job-updated
+    azure_e2e_project_anirban:
+      name: azure-e2e-project-anirban
       tasks:
         - task_key: diagnosis_raw_ingestion_task
           notebook_task:
             notebook_path: ../bronze/diagnosis_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: dim_diagnosis_ingestion
+          environment_key: Default
+        - task_key: diagnosis_silver_task
           depends_on:
             - task_key: diagnosis_raw_ingestion_task
           notebook_task:
             notebook_path: ../silver/dim_diagnosis_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: hospitals_raw_ingestion_task
+          environment_key: Default
+        - task_key: hospital_raw_ingestion
           notebook_task:
             notebook_path: ../bronze/hospitals_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: dim_hospital_ingestion
+          environment_key: Default
+        - task_key: hospital_silver_task
           depends_on:
-            - task_key: hospitals_raw_ingestion_task
+            - task_key: hospital_raw_ingestion
           notebook_task:
             notebook_path: ../silver/dim_hospital_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: patients_raw_ingestion_task
+          environment_key: Default
+        - task_key: patients_ingestion
           notebook_task:
             notebook_path: ../bronze/patients_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: dim_patient_ingestion
+          environment_key: Default
+        - task_key: patient_silver_task
           depends_on:
-            - task_key: patients_raw_ingestion_task
+            - task_key: patients_ingestion
           notebook_task:
             notebook_path: ../silver/dim_patient_ingestion.ipynb
             source: WORKSPACE
-        
-        - task_key: visits_raw_ingestion_task
+          environment_key: Default
+        - task_key: visits_ingestion
           notebook_task:
             notebook_path: ../bronze/visits_raw_data_ingestion.ipynb
             source: WORKSPACE
-        
+          environment_key: Default
         - task_key: fact_visit_ingestion
           depends_on:
-            - task_key: dim_patient_ingestion
-            - task_key: dim_hospital_ingestion
-            - task_key: dim_diagnosis_ingestion
-            - task_key: visits_raw_ingestion_task
+            - task_key: diagnosis_silver_task
+            - task_key: hospital_silver_task
+            - task_key: patient_silver_task
+            - task_key: visits_ingestion
           notebook_task:
             notebook_path: ../silver/fact_visit_ingestion.ipynb
             source: WORKSPACE
-        
+          environment_key: Default
         - task_key: resubmission_analysis
           depends_on:
             - task_key: fact_visit_ingestion
           notebook_task:
             notebook_path: ../gold/resubmission_analysis.ipynb
             source: WORKSPACE
-      
+          environment_key: Default
       queue:
         enabled: true
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "5"
       performance_target: PERFORMANCE_OPTIMIZED
-

@@ -1,18 +1,26 @@
 bundle:
   name: healthcare-end-to-end-project
 
+sync:
+  exclude:
+    - docs/**
+    - DEPLOYMENT.md
+
 include:
   - resources/*.yml
+
+# Phase E: add variables + base_parameters in job.yml before prod merge (see docs/IMPLEMENTATION_SPEC.md §8)
+#   dev:  catalog haredecodes,  storage haredecodesnew
+#   prod: catalog haredecodes_prod, storage haredecodesnewprod
 
 targets:
   dev:
     mode: development
     workspace:
-      host: https://adb-7405607317963710.10.azuredatabricks.net
-    
+      host: https://adb-7405614871562851.11.azuredatabricks.net
+
   prod:
     mode: production
     workspace:
-      host: https://adb-7405607317963710.10.azuredatabricks.net
+      host: https://adb-7405616194048266.6.azuredatabricks.net
       root_path: /Workspace/.bundle/${bundle.name}/${bundle.target}
-
