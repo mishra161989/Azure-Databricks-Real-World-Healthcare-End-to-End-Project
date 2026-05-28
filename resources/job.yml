@@ -1,5 +1,5 @@
 # Job uses WORKSPACE paths relative to bundle root (../bronze, etc.).
-# Notebooks are deployed by `databricks bundle deploy` — no job-level git_source (prod-safe).
+# Notebooks read catalog/storage from bundle variables via base_parameters.
 resources:
   jobs:
     azure_e2e_project_anirban:
@@ -9,6 +9,11 @@ resources:
           notebook_task:
             notebook_path: ../bronze/diagnosis_raw_data_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: diagnosis_silver_task
           depends_on:
@@ -16,11 +21,21 @@ resources:
           notebook_task:
             notebook_path: ../silver/dim_diagnosis_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: hospital_raw_ingestion
           notebook_task:
             notebook_path: ../bronze/hospitals_raw_data_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: hospital_silver_task
           depends_on:
@@ -28,11 +43,21 @@ resources:
           notebook_task:
             notebook_path: ../silver/dim_hospital_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: patients_ingestion
           notebook_task:
             notebook_path: ../bronze/patients_raw_data_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: patient_silver_task
           depends_on:
@@ -40,11 +65,21 @@ resources:
           notebook_task:
             notebook_path: ../silver/dim_patient_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: visits_ingestion
           notebook_task:
             notebook_path: ../bronze/visits_raw_data_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: fact_visit_ingestion
           depends_on:
@@ -55,6 +90,11 @@ resources:
           notebook_task:
             notebook_path: ../silver/fact_visit_ingestion.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
         - task_key: resubmission_analysis
           depends_on:
@@ -62,6 +102,11 @@ resources:
           notebook_task:
             notebook_path: ../gold/resubmission_analysis.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              storage_account: ${var.storage_account}
+              container_name: ${var.container_name}
+              raw_path_prefix: ${var.raw_path_prefix}
           environment_key: Default
       queue:
         enabled: true

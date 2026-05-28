@@ -9,18 +9,33 @@ sync:
 include:
   - resources/*.yml
 
-# Phase E: add variables + base_parameters in job.yml before prod merge (see docs/IMPLEMENTATION_SPEC.md §8)
-#   dev:  catalog haredecodes,  storage haredecodesnew
-#   prod: catalog haredecodes_prod, storage haredecodesnewprod
+variables:
+  catalog_name:
+    description: Unity Catalog catalog name
+  storage_account:
+    description: ADLS storage account name (no protocol)
+  container_name:
+    default: data
+  raw_path_prefix:
+    default: staging
+    description: Raw CSV folder under container (staging or landing)
 
 targets:
   dev:
     mode: development
     workspace:
       host: https://adb-7405614871562851.11.azuredatabricks.net
+    variables:
+      catalog_name: haredecodes
+      storage_account: haredecodesnew
+      raw_path_prefix: staging
 
   prod:
     mode: production
     workspace:
       host: https://adb-7405616194048266.6.azuredatabricks.net
       root_path: /Workspace/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog_name: haredecodes_prod
+      storage_account: haredecodesnewprod
+      raw_path_prefix: staging
